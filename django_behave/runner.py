@@ -54,7 +54,8 @@ def get_options():
                 break
 
         # Only deal with those options that have a long version
-        if long_option:
+        # DIRTY HACK
+        if long_option and long_option != "--logging-level":
             # Remove 'config_help' as that's not a valid optparse keyword
             if keywords.has_key("config_help"):
                 keywords.pop("config_help")
