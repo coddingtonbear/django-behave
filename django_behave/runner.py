@@ -182,6 +182,7 @@ class DjangoBehaveTestSuiteRunner(DjangoTestSuiteRunner):
         return DjangoBehaveTestCase(features_dir=features_dir, option_info=self.option_info)
 
     def build_suite(self, test_labels, extra_tests=None, **kwargs):
+        suite = unittest.TestSuite()
         extra_tests = extra_tests or []
         #
         # Add BDD tests to the extra_tests
