@@ -138,6 +138,7 @@ class DjangoBehaveTestCase(LiveServerTestCase):
         # from behave/__main__.py
         #stream = self.behave_config.output
         runner = Runner(self.behave_config)
+        runner.undefined_steps = []
         try:
             failed = runner.run()
         except ParserError, e:
