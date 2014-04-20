@@ -91,6 +91,9 @@ def parse_argv(argv, option_info):
             if argv[index] == "--behave_browser":
                 our_opts["browser"] = argv[index + 1]
                 index += 1  # Skip past browser option arg
+            elif argv[index] == "--behave_wip":
+                new_argv.append("-w")
+                index += 1
             else:
                 # Convert to Behave option
                 new_argv.append("--" + argv[index][9:])
