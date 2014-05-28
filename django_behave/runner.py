@@ -4,6 +4,7 @@
 import unittest
 from optparse import make_option
 from os.path import dirname, abspath, basename, join, isdir
+import weakref
 
 from django.test.simple import DjangoTestSuiteRunner
 from django.test import LiveServerTestCase
@@ -41,6 +42,12 @@ def get_options():
             dest="browser",
             help="Specify the browser to use for testing",
         ),
+        make_option("--behave_feature",
+            action="store",
+            dest="features_dir",
+            default=None,
+            help="Specify the feature file or directory to run",
+        )
     )
 
     option_info = {}
@@ -91,6 +98,9 @@ def parse_argv(argv, option_info):
             if argv[index] == "--behave_browser":
                 our_opts["browser"] = argv[index + 1]
                 index += 1  # Skip past browser option arg
+            elif argv[index] == "--behave_feature":
+                our_opts["feature"] = argv[index + 1]
+                index += 1
             elif argv[index] == "--behave_wip":
                 new_argv.append("-w")
                 index += 1
@@ -129,7 +139,10 @@ class DjangoBehaveTestCase(LiveServerTestCase):
         self.behave_config.browser = our_opts["browser"]
 
         self.behave_config.server_url = self.live_server_url  # property of LiveServerTestCase
-        self.behave_config.paths = self.get_features_dir()
+        if our_opts.get("feature", None):
+            self.behave_config.paths = [abspath(our_opts["feature"])]
+        else:
+            self.behave_config.paths = self.get_features_dir()
         self.behave_config.format = ['pretty']
         # disable these in case you want to add set_trace in the tests you're developing
         self.behave_config.stdout_capture = False
@@ -141,6 +154,7 @@ class DjangoBehaveTestCase(LiveServerTestCase):
         # from behave/__main__.py
         #stream = self.behave_config.output
         runner = Runner(self.behave_config)
+        runner.test_case = weakref.proxy(self)
         runner.undefined_steps = []
         try:
             failed = runner.run()
